@@ -1,8 +1,49 @@
 import requests
 import os
+import smtplib
+from email.mime.text import MIMEText
+from datetime import date
 
 BASE_URL = "http://127.0.0.1:8000"
 
+
+
+def send_email(to_email, subject, message):
+    sender_email = "your_email@gmail.com"
+    password = "your_app_password"   # 🔥 not real password
+
+    msg = MIMEText(message)
+    msg["Subject"] = subject
+    msg["From"] = sender_email
+    msg["To"] = to_email
+
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+        server.login(sender_email, password)
+        server.send_message(msg)
+        
+def check_and_send_alerts(docs, user_email):
+    today = date.today()
+
+    for doc in docs:
+        if doc.get("expiry_date"):
+            expiry = date.fromisoformat(doc["expiry_date"])
+            days_left = (expiry - today).days
+
+            # 🔔 Expiring soon
+            if days_left == 3:
+                send_email(
+                    user_email,
+                    "Document Expiry Alert",
+                    f"{doc['title']} will expire in 3 days."
+                )
+
+            # 🚨 Already expired
+            if days_left < 0:
+                send_email(
+                    user_email,
+                    "Document Expired",
+                    f"{doc['title']} has expired."
+                )
 
 def build_file_url(file_path):
     if not file_path:

@@ -1,7 +1,7 @@
 import streamlit as st
 from pathlib import Path
 import base64
-
+from utils import (check_and_send_alerts)
 BASE_DIR = Path(__file__).resolve().parent
 
 from utils import (
@@ -367,6 +367,8 @@ def dashboard_page():
     expired_resp = get_expired_documents(user_id)
 
     all_docs = all_docs_resp.json() if all_docs_resp.status_code == 200 else []
+    # 🔥 TEMP EMAIL TRIGGER (for testing)
+    check_and_send_alerts(all_docs, "your_email@gmail.com")
     expiring_docs = expiring_resp.json() if expiring_resp.status_code == 200 else []
     expired_docs = expired_resp.json() if expired_resp.status_code == 200 else []
 
